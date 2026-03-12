@@ -13,7 +13,8 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 bg-gray-50 p-4 rounded">
             <div>
                 <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Amount ($)</label>
-                <input type="number" id="amount" class="w-full border p-2 rounded" placeholder="12000000">
+                <!-- switch to text so we can insert commas/points for readability -->
+                <input type="text" inputmode="decimal" id="amount" class="w-full border p-2 rounded" placeholder="12,000,000">
             </div>
             <div>
                 <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Annual Interest (%)</label>

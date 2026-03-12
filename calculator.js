@@ -1,9 +1,20 @@
-document.addEventListener('DOMContentLoaded', loadHistory);
+document.addEventListener('DOMContentLoaded', () => {
+    loadHistory();
+
+    // hook formatting on the amount field immediately
+    const amountInput = document.getElementById('amount');
+    if (amountInput) {
+        amountInput.addEventListener('input', formatNumberInput);
+        amountInput.addEventListener('blur', formatNumberInput);
+    }
+});
 
 let deleteTarget = null; // Stores index for single delete or 'all' for clear all
 
 function calculateLoan() {
-    const amount = parseFloat(document.getElementById('amount').value);
+    // strip commas or other non-numeric chars before parsing
+    const rawAmount = document.getElementById('amount').value;
+    const amount = parseFloat(rawAmount.replace(/[^0-9.]/g, ''));
     const rateYear = parseFloat(document.getElementById('rate').value);
     const years = parseFloat(document.getElementById('years').value);
 
@@ -140,6 +151,27 @@ function saveHistory(data) {
     localStorage.setItem('loan_history', JSON.stringify(history.slice(0, 10))); // Store last 10
     loadHistory();
 }
+
+// utility helper to format an input field value with thousand separators
+function formatNumberInput(e) {
+    const el = e.target;
+    // remember cursor position
+    const selectionStart = el.selectionStart;
+
+    // strip out anything except digits and dot
+    let val = el.value.replace(/[^\d.]/g, '');
+    // allow only one decimal point
+    const parts = val.split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    el.value = parts.join('.');
+
+    // try to put cursor back roughly in same place
+    if (selectionStart !== null) {
+        const newPos = Math.min(el.value.length, selectionStart + (el.value.length - val.length));
+        el.setSelectionRange(newPos, newPos);
+    }
+}
+
 
 function loadHistory() {
     const history = JSON.parse(localStorage.getItem('loan_history')) || [];
