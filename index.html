@@ -3,60 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loan Calculator</title>
+    <title>Loan Calculator Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        table th, table td { 
+            text-align: center !important; 
+            vertical-align: middle; 
+            border: 1px solid #e2e8f0;
+        }
+        .rotate-180 { transform: rotate(180deg); }
+        .transition-transform { transition: transform 0.3s ease; }
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    </style>
 </head>
-<body class="bg-gray-100 p-5 md:p-10">
-    <div class="max-w-4xl mx-auto bg-white p-8 rounded shadow-lg">
-        <h1 class="text-2xl font-bold mb-6 border-b pb-2 text-blue-600 uppercase">Loan Calculator</h1>
+<body class="bg-gray-100 p-5 md:p-10 font-sans">
+    <div class="max-w-5xl mx-auto bg-white p-8 rounded shadow-lg">
+        <h1 class="text-2xl font-bold mb-6 border-b pb-2 text-blue-600 uppercase tracking-tight text-center">Loan Calculator</h1>
 
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 bg-gray-50 p-4 rounded">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 bg-gray-50 p-4 rounded border border-gray-200">
             <div>
                 <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Amount ($)</label>
-                <!-- switch to text so we can insert commas/points for readability -->
-                <input type="text" inputmode="decimal" id="amount" class="w-full border p-2 rounded" placeholder="12,000,000">
+                <input type="text" inputmode="decimal" id="amount" class="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none" placeholder="1,000,000,000">
             </div>
             <div>
                 <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Annual Interest (%)</label>
-                <input type="number" step="0.1" id="rate" class="w-full border p-2 rounded" placeholder="12">
+                <input type="number" step="0.1" id="rate" class="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none" placeholder="12">
             </div>
             <div>
                 <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Term (Years)</label>
-                <input type="number" id="years" class="w-full border p-2 rounded" placeholder="1">
+                <input type="number" id="years" class="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none" placeholder="2">
             </div>
-            <button onclick="calculateLoan()" class="bg-blue-600 text-white font-bold rounded h-10 mt-auto hover:bg-blue-700 transition">CALCULATE</button>
+            <button onclick="calculateLoan()" class="bg-blue-600 text-white font-bold rounded h-10 mt-auto hover:bg-blue-700 transition uppercase text-sm shadow-md">Calculate</button>
         </div>
 
-        <div id="resultSummary" class="hidden bg-blue-600 text-white p-6 rounded-xl mb-8 flex justify-around items-center shadow-md">
+        <div id="resultSummary" class="hidden bg-blue-600 text-white p-6 rounded-xl mb-8 flex justify-around items-center shadow-lg">
             <div class="text-center">
-                <span class="text-xs opacity-80 uppercase font-bold">Total Interest</span>
+                <span class="text-xs opacity-80 uppercase font-bold tracking-widest">Total Interest</span>
                 <p id="totalInterestRes" class="text-3xl font-black">$0</p>
             </div>
             <div class="h-10 w-px bg-blue-400"></div>
             <div class="text-center">
-                <span class="text-xs opacity-80 uppercase font-bold">Total Repayment</span>
+                <span class="text-xs opacity-80 uppercase font-bold tracking-widest">Total Repayment</span>
                 <p id="totalPayableRes" class="text-3xl font-black">$0</p>
             </div>
         </div>
 
         <div id="tableContainer"></div>
 
-        <hr class="my-10">
+        <hr class="my-10 border-gray-200">
 
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="font-bold text-gray-800 uppercase tracking-wide">Calculation History</h2>
+        <div class="flex justify-between items-center mb-4 px-2">
+            <h2 class="font-bold text-gray-800 uppercase tracking-widest text-sm flex items-center gap-2">
+                <span class="w-2 h-4 bg-gray-800 rounded-sm"></span> History
+            </h2>
             <button onclick="openClearAllModal()" class="text-red-500 text-xs font-bold hover:underline">CLEAR ALL</button>
         </div>
         <div class="overflow-x-auto">
-            <table class="w-full text-sm border-collapse border border-gray-200">
-                <thead class="bg-gray-800 text-white uppercase text-xs">
+            <table class="w-full text-sm border-collapse">
+                <thead class="bg-gray-800 text-white uppercase text-[10px] tracking-wider text-center">
                     <tr>
                         <th class="p-3">Principal</th>
                         <th class="p-3">Rate</th>
                         <th class="p-3">Years</th>
-                        <th class="p-3 text-blue-300">Interest</th>
-                        <th class="p-3">Total</th>
-                        <th class="p-3 text-center">Action</th>
+                        <th class="p-3 text-center">Interest</th>
+                        <th class="p-3 text-center">Total</th>
+                        <th class="p-3">Action</th>
                     </tr>
                 </thead>
                 <tbody id="historyTable" class="divide-y divide-gray-100"></tbody>
@@ -64,14 +76,13 @@
         </div>
     </div>
 
-    <div id="confirmModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
-        <div class="bg-white p-8 rounded-lg shadow-2xl max-w-sm w-full text-center">
-            <div class="text-red-500 text-4xl mb-4">⚠️</div>
-            <h3 id="modalTitle" class="font-bold text-xl mb-2">Confirm Action</h3>
-            <p id="modalMessage" class="text-gray-600 mb-8 text-sm">Are you sure you want to proceed?</p>
+    <div id="confirmModal" class="fixed inset-0 bg-black/60 hidden flex items-center justify-center z-50 backdrop-blur-sm text-center">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-sm w-full">
+            <h3 id="modalTitle" class="font-bold text-xl mb-2 text-gray-800">Delete</h3>
+            <p id="modalMessage" class="text-gray-500 mb-8 text-sm">Are you sure you want to remove this calculation from your history? This action cannot be undone.</p>
             <div class="flex gap-4">
-                <button onclick="closeModal()" class="flex-1 bg-gray-100 py-2 rounded font-bold">Cancel</button>
-                <button id="confirmBtn" class="flex-1 bg-red-600 text-white py-2 rounded font-bold hover:bg-red-700">Confirm</button>
+                <button onclick="closeModal()" class="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-200">Cancel</button>
+                <button id="confirmBtn" class="flex-1 bg-red-600 text-white py-3 rounded-xl font-bold hover:bg-red-700">Confirm</button>
             </div>
         </div>
     </div>
